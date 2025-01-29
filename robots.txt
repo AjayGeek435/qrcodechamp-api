@@ -1,5 +1,2 @@
 User-agent: *
 Disallow: /
-
-Disallow: */coins/*/social$
-Disallow: */coins/*/wallets$
