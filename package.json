@@ -1,11 +1,11 @@
 {
-    "name": "qrcodechamp-api",
+    "name": "qrcodechamp-stage-api",
     "version": "1.0.0",
     "license": "ISC",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "SET NODE_ENV=development & nodemon server.js",
-        "prod": "pm2 start server.js --name qrcodechamp-api"
+        "prod": "pm2 start server.js --name qrcodechamp-stage-api"
     },
     "dependencies": {
         "axios": "^1.6.8",

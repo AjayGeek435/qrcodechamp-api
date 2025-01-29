@@ -57,12 +57,6 @@ app.get('/uploads/:filename', (req, res) => {
     }
 });
 
-app.get('/test', (req, res) => {
-   
-    console.log("Hello TEst");
-    
-});
-
 app.listen(configData.PORT, () => {
     console.log(`Server running on ${configData.BACKEND_HOST}`);
 });
