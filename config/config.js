@@ -6,6 +6,7 @@ if (process.env.NODE_ENV == "production") {
         BASE_PATH: path.join(__dirname),
         FRONTEND_HOST: process.env.PRODUCTION_FRONTEND_HOST,
         BACKEND_HOST: process.env.PRODUCTION_BACKEND_HOST,
+        IMAGE_HOST: process.env.PRODUCTION_IMAGE_HOST,
     };
 } else {
     module.exports = {
@@ -13,5 +14,6 @@ if (process.env.NODE_ENV == "production") {
         BASE_PATH: path.join(__dirname),
         FRONTEND_HOST: process.env.DEVELOPMENT_FRONTEND_HOST,
         BACKEND_HOST: process.env.DEVELOPMENT_BACKEND_HOST,
+        IMAGE_HOST: process.env.DEVELOPMENT_IMAGE_HOST,
     };
 }
