@@ -1,22 +1,26 @@
-const dotenv = require("dotenv");
-dotenv.config({ path: "./config/.env" });
-const express = require('express');
+const fs = require('fs');
+const cors = require('cors');
+const path = require('path');
+const axios = require('axios');
 const multer = require('multer');
 const crypto = require('crypto');
-const path = require('path');
-const cors = require('cors');
-const fs = require('fs');
 const mkdirp = require('mkdirp');
+const dotenv = require("dotenv");
+const express = require('express');
 const app = express();
 app.use(cors());
+
+dotenv.config({ path: "./config/.env" });
 const configData = require("./config/config");
 
-const uploadsDir = path.join(__dirname, 'uploads');
+//Configure Path for the Image Upload
+
+const uploadsDir = path.join(configData.BASE_PATH);
 mkdirp.sync(uploadsDir);
 
-const generateRandomFileName = (length = 5) => {
-    return crypto.randomBytes(length).toString('hex').slice(0, length);
-};
+app.use('/uploads', express.static('uploads'));
+
+// Package for image upload
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -34,15 +38,24 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.use('/uploads', express.static('uploads'));
+// Image Name Generator
 
-app.post('/upload', upload.single('file'), (req, res) => {
+const generateRandomFileName = (length = 5) => {
+    return crypto.randomBytes(length).toString('hex').slice(0, length);
+};
+
+// Image Upload
+
+app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
+    }else{
+        const fileUrl = `${configData.IMAGE_HOST}${req.file.filename}`;
+        return res.status(200).json({ downloadLink: fileUrl });
     }
-    const fileUrl = `${configData.BACKEND_HOST}uploads/${req.file.filename}`;
-    return res.status(200).json({ downloadLink: fileUrl });
 });
+
+// Image Download
 
 app.get('/uploads/:filename', (req, res) => {
     const fileName = req.params.filename;
@@ -57,11 +70,6 @@ app.get('/uploads/:filename', (req, res) => {
     }
 });
 
-app.get('/test', (req, res) => {
-   
-    console.log("Hello TEst");
-    
-});
 
 app.listen(configData.PORT, () => {
     console.log(`Server running on ${configData.BACKEND_HOST}`);
