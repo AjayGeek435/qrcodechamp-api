@@ -1,55 +1,26 @@
-const dotenv = require("dotenv");
-dotenv.config({ path: "./config/.env" });
-const express = require('express');
+const fs = require('fs');
+const cors = require('cors');
+const path = require('path');
+const axios = require('axios');
 const multer = require('multer');
 const crypto = require('crypto');
-const path = require('path');
-const cors = require('cors');
-const fs = require('fs');
 const mkdirp = require('mkdirp');
-const axios = require('axios');
+const dotenv = require("dotenv");
+const express = require('express');
 const app = express();
 app.use(cors());
-const configData = require("./config/config");
-// import { uploadFileOnServer } from './helper/fileFunction';
 
-const uploadsDir = path.join(__dirname, 'uploads');
+dotenv.config({ path: "./config/.env" });
+const configData = require("./config/config");
+
+//Configure Path for the Image Upload
+
+const uploadsDir = path.join(configData.BASE_PATH);
 mkdirp.sync(uploadsDir);
 
-const generateRandomFileName = (length = 5) => {
-    return crypto.randomBytes(length).toString('hex').slice(0, length);
-};
+app.use('/uploads', express.static('uploads'));
 
-const uploadFileOnServer = async (url, image_path) => {
-    console.log("url", url);
-    console.log("image_path", image_path);
-    const writer = fs.createWriteStream(image_path);
-    console.log("writer", writer);
-    try {
-        const response = await axios({
-            url: 'https://qr.qrcodechamp.com/uploads/IMG_6198.jpg',
-            method: 'GET',
-            responseType: 'stream'
-        });
-
-        console.log("response", response);
-        response.data.pipe(writer);
-
-        return new Promise((resolve, reject) => {
-            writer.on('finish', () => {
-                console.log(`The file is finished downloading.`);
-                resolve();
-            });
-            writer.on('error', (error) => {
-                reject(error);
-            });
-        });
-    } catch (error) {
-        console.log(`Something happened: ${error}`);
-        throw error;
-    }
-};
-
+// Package for image upload
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -67,16 +38,24 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.use('/uploads', express.static('uploads'));
+// Image Name Generator
+
+const generateRandomFileName = (length = 5) => {
+    return crypto.randomBytes(length).toString('hex').slice(0, length);
+};
+
+// Image Upload
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
+    }else{
+        const fileUrl = `${configData.IMAGE_HOST}${req.file.filename}`;
+        return res.status(200).json({ downloadLink: fileUrl });
     }
-    await uploadFileOnServer(req.file.filename, `${configData.BASE_PATH}uploads/${req.file.filename}`);
-    const fileUrl = `${configData.BASE_PATH}uploads/${req.file.filename}`;
-    return res.status(200).json({ downloadLink: fileUrl });
 });
+
+// Image Download
 
 app.get('/uploads/:filename', (req, res) => {
     const fileName = req.params.filename;
@@ -90,6 +69,7 @@ app.get('/uploads/:filename', (req, res) => {
         res.status(404).send('File not found');
     }
 });
+
 
 app.listen(configData.PORT, () => {
     console.log(`Server running on ${configData.BACKEND_HOST}`);
