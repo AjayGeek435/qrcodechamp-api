@@ -73,10 +73,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
-
-    await uploadFileOnServer(req.file.filename, `/home/sagarg/public_html/qr.qrcodechamp.com/uploads/${req.file.filename}`);
-
-    const fileUrl = `${configData.BACKEND_HOST}uploads/${req.file.filename}`;
+    await uploadFileOnServer(req.file.filename, `${configData.BASE_PATH}uploads/${req.file.filename}`);
+    const fileUrl = `${configData.BASE_PATH}uploads/${req.file.filename}`;
     return res.status(200).json({ downloadLink: fileUrl });
 });
 
