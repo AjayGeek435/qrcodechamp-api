@@ -79,19 +79,29 @@ const clearImages = () => {
             console.log('Error reading directory:', err);
             return;
         }
-
-        // Loop through files and delete them
+        const currentTime = new Date().getTime();
+        const fifteenDaysInMilliseconds = 15 * 24 * 60 * 60 * 1000;
         files.forEach((file) => {
             const filePath = path.join(uploadsDir, file);
-            console.log("filePath", filePath);
-            // Delete the file
-            // fs.unlink(filePath, (err) => {
-            //     if (err) {
-            //         console.log(`Error deleting file: ${file}`, err);
-            //     } else {
-            //         console.log(`Deleted: ${file}`);
-            //     }
-            // });
+            fs.stat(filePath, (err, stats) => {
+                if (err) {
+                    console.log(`Error getting stats for file: ${file}`, err);
+                    return;
+                }
+                const fileAgeInMilliseconds = currentTime - new Date(stats.mtime).getTime();
+                if (fileAgeInMilliseconds > fifteenDaysInMilliseconds) {
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            console.log(`Error deleting file: ${file}`, err);
+                        } else {
+                            console.log(`Deleted: ${file}`);
+                        }
+                    });
+                } else {
+                    console.log(`${file} is not older than 15 days.`);
+                }
+            });
+
         });
     });
 };
