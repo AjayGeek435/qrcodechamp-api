@@ -76,7 +76,6 @@ app.get('/uploads/:filename', (req, res) => {
 const clearImages = () => {
     fs.readdir(uploadsDir, (err, files) => {
         if (err) {
-            console.log('Error reading directory:', err);
             return;
         }
         const currentTime = new Date().getTime();
@@ -85,7 +84,6 @@ const clearImages = () => {
             const filePath = path.join(uploadsDir, file);
             fs.stat(filePath, (err, stats) => {
                 if (err) {
-                    console.log(`Error getting stats for file: ${file}`, err);
                     return;
                 }
                 const fileAgeInMilliseconds = currentTime - new Date(stats.mtime).getTime();
@@ -97,8 +95,6 @@ const clearImages = () => {
                             console.log(`Deleted: ${file}`);
                         }
                     });
-                } else {
-                    console.log(`${file} is not older than 15 days.`);
                 }
             });
 
