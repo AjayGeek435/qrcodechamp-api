@@ -105,8 +105,5 @@ const clearImages = () => {
 
 app.listen(configData.PORT, () => {
     console.log(`Server running on ${configData.BACKEND_HOST}`);
-
-    // Schedule to run the clearImages function at midnight every day
-    cron.schedule('* * * * *', clearImages);  // This will run at 00:00 (midnight) every day
-
+    cron.schedule('0 0 * * *', clearImages); 
 });
