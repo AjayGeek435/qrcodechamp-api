@@ -6,6 +6,7 @@ const multer = require('multer');
 const crypto = require('crypto');
 const mkdirp = require('mkdirp');
 const dotenv = require("dotenv");
+const cron = require('node-cron');
 const express = require('express');
 const app = express();
 app.use(cors());
@@ -49,7 +50,7 @@ const generateRandomFileName = (length = 5) => {
 app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
-    }else{
+    } else {
         const fileUrl = `${configData.IMAGE_HOST}${req.file.filename}`;
         return res.status(200).json({ downloadLink: fileUrl });
     }
@@ -70,7 +71,36 @@ app.get('/uploads/:filename', (req, res) => {
     }
 });
 
+// Function to clear images
+
+const clearImages = () => {
+    fs.readdir(uploadsDir, (err, files) => {
+        if (err) {
+            console.log('Error reading directory:', err);
+            return;
+        }
+
+        // Loop through files and delete them
+        files.forEach((file) => {
+            const filePath = path.join(uploadsDir, file);
+            console.log("filePath", filePath);
+            // Delete the file
+            // fs.unlink(filePath, (err) => {
+            //     if (err) {
+            //         console.log(`Error deleting file: ${file}`, err);
+            //     } else {
+            //         console.log(`Deleted: ${file}`);
+            //     }
+            // });
+        });
+    });
+};
+
 
 app.listen(configData.PORT, () => {
     console.log(`Server running on ${configData.BACKEND_HOST}`);
+
+    // Schedule to run the clearImages function at midnight every day
+    cron.schedule('* * * * *', clearImages);  // This will run at 00:00 (midnight) every day
+
 });
